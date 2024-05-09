@@ -1,0 +1,15 @@
+pyserial
+flask
+flask_socketio
+aiortc
+opencv-python
+imutils
+mediapipe
+netifaces
+imageio
+pygame
+pyttsx3
+jupyterlab
+jupyterlab-widgets
+jupyterlab-pygments
+jupyter
