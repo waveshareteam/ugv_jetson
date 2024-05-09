@@ -8,7 +8,7 @@ if [ -n "$SUDO_USER" ] || [ -n "$SUDO_UID" ]; then
 fi
 
 # Define the first cron job and its schedule
-cron_job1="@reboot sleep 1 && XDG_RUNTIME_DIR=/run/user/$(id -u) ~/ugv_jetson/ugv-env/bin/python ~/ugv_jetson/app.py >> ~/ugv.log 2>&1"
+cron_job1="@reboot sleep 1 && whoami && pulseaudio --start && sleep 1 && XDG_RUNTIME_DIR=/run/user/$(id -u) ~/ugv_jetson/ugv-env/bin/python ~/ugv_jetson/app.py >> ~/ugv.log 2>&1"
 
 # Define the second cron job for starting Jupyter
 # cron_job2="@reboot sleep 1 && /bin/bash ~/ugv_jetson/start_jupyter.sh >> ~/jupyter_log.log 2>&1"
