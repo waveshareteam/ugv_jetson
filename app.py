@@ -15,9 +15,10 @@ def set_default_sink(device_name):
 device_name = "alsa_output.usb-Solid_State_System_Co._Ltd._USB_PnP_Audio_Device_000000000000-00.analog-stereo"
 set_default_sink(device_name)
 
-
+# JETSON ORIN NANO
 base = BaseController('/dev/ttyTHS0', 115200)
-# base = BaseController('/dev/ttyACM1', 115200)
+# JETSON ORIN NX
+# base = BaseController('/dev/ttyTHS1', 115200)
 
 threading.Thread(target=lambda: base.breath_light(20), daemon=True).start()
 
