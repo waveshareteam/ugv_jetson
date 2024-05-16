@@ -51,8 +51,8 @@ sudo udevadm trigger
 # install jupyterlab
 sudo apt install -y nodejs npm
 sudo pip install jupyter jupyterlab
-sudo pip install -U jetson-stats
-sudo -H pip install -U jetson-stats
+sudo pip3 install -U jetson-stats
+sudo -H pip3 install -U jetson-stats
 
 sudo apt install -y python3-venv python3-pip build-essential python3-dev
 
