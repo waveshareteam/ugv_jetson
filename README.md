@@ -53,7 +53,7 @@ You can clone this repository from Waveshare's GitHub to your local machine.
     sudo chmod +x setup.sh
     sudo chmod +x autorun.sh
 ### Install app (it'll take a while before finish)
-    sudo uminimize
+    sudo unnnminimize
     sudo ./setup.sh
 ### JupyterLab Setup
     python3 create_jupyter_service.py
