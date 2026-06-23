@@ -87,7 +87,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/bin/bash -c "$USER_HOME/roarm_web_app/start_roarm.sh >> $USER_HOME/roarm_web_app/roarm_web_app.log 2>&1"
+ExecStart=/bin/bash -c "$USER_HOME/ugv_rpi/scripts/start_roarm_web_app.sh >> $USER_HOME/roarm_web_app/roarm_web_app.log 2>&1"
 WorkingDirectory=$USER_HOME/roarm_web_app
 Restart=always
 RestartSec=5

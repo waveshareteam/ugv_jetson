@@ -7,7 +7,7 @@ export NODE_ENV=production
 echo "Node: $(which node)" >> roarm_web_app.log 2>&1
 echo "NPM: $(which npm)" >> roarm_web_app.log 2>&1
 
-npm install >> roarm_web_app.log 2>&1
+# npm install >> roarm_web_app.log 2>&1
 
 # build + start
 # npm run build >> roarm_web_app.log 2>&1
