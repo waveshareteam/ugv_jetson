@@ -1136,9 +1136,9 @@ function togglePressMode() {
 
 let ledPwmState = { io4: 0, io5: 0 };
 let ptPoseState = { x: 0, y: 0 };
-let armPoseState = { x: 230, y: 0, z: 80, r: 0, p: 0 };
-let armJointState = { base: 0, shoulder: 0.0191, elbow: 2.9569, wrist: -1.4053, roll: 0, hand: 3.1416 };
-let armlastJointState = { base: 0, shoulder: 0.0191, elbow: 2.9569, wrist: -1.4053, roll: 0, hand: 3.1416 };
+let armPoseState = { x: 168.7, y: 0, z: -6.7, r: 0, p: 0 };
+let armJointState = { base: 0, shoulder: 0, elbow: 2.618, wrist: 0, roll: 0, hand: 3.1416 };
+let armlastJointState = { base: 0, shoulder: 0, elbow: 2.618, wrist: 0, roll: 0, hand: 3.1416 };
 let rosBaseSpeedState = { x: 0, z: 0 };
 
 ledPwmState = createStateManager(ledPwmState, ledPwmCtrl);
@@ -1433,9 +1433,9 @@ function createJoystick(containerId, axisX, axisY, clickCenter = null) {
 function lookAhead() {   
     if (config.module_type === 1 || config.module_type === 3) {
         armJointState.base = 0;
-        armJointState.shoulder = 0.0191;
-        armJointState.elbow = 2.9569;
-        armJointState.wrist = -1.4053;
+        armJointState.shoulder = 0;
+        armJointState.elbow = 2.618;
+        armJointState.wrist = 0;
         armJointState.roll = 0;
         armJointState.hand = 3.1416;
         if (slider) { slider.value = 3.1416 - armJointState.hand;}

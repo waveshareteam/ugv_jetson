@@ -371,16 +371,16 @@ class JoyTeleop:
         self.mode = 'joint'
         self.armJointState = type('', (), {})()
         self.armJointState.base = 0.0
-        self.armJointState.shoulder = 0.0191
-        self.armJointState.elbow = 2.9569
-        self.armJointState.wrist = -1.4053
+        self.armJointState.shoulder = 0.0
+        self.armJointState.elbow = 2.618
+        self.armJointState.wrist = 0.0
         self.armJointState.roll = 0.0
         self.armJointState.hand = 3.1416
 
         self.armPoseState = type('', (), {})()
-        self.armPoseState.x = 230
+        self.armPoseState.x = 168.6
         self.armPoseState.y = 0
-        self.armPoseState.z = 80
+        self.armPoseState.z = -6.7
         self.armPoseState.r = 0.0
         self.armPoseState.p = 0.0
 
@@ -710,9 +710,9 @@ class JoyTeleop:
                     self.armPoseState.p = 0.0
 
                     self.armJointState.base = 0.0
-                    self.armJointState.shoulder = 0.0191
-                    self.armJointState.elbow = 2.9569
-                    self.armJointState.wrist = -1.4053
+                    self.armJointState.shoulder = 0.0
+                    self.armJointState.elbow = 2.618
+                    self.armJointState.wrist = 0.0
                     self.armJointState.roll = 0.0
                     self.armJointState.hand = 3.1416
 

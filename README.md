@@ -77,6 +77,8 @@ You can clone this repository from Waveshare's GitHub to your local machine.
     *Input 1: Install AccessPopup
     *Press any key to exit
     *Input 9: Exit installconfig.sh
+### Increase the file monitoring limit inotify
+    echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p 
 ### Reboot Device
     sudo reboot
 

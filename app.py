@@ -549,9 +549,9 @@ if __name__ == "__main__":
 
     # pt/arm looks forward
     if f['base_config']['module_type'] == 1:
-        base.base_json_ctrl({"T":102,"base": 0,"shoulder": 0.0191,"elbow": 2.9569,"hand": 3.1415,"spd": 0,"acc": 30})
+        base.base_json_ctrl({"T":102,"base": 0,"shoulder": 0,"elbow": 2.618,"hand": 3.1415,"spd": 0,"acc": 30})
     elif f['base_config']['module_type'] == 3:
-        base.base_json_ctrl({"T":102,"base": 0,"shoulder": 0.0191,"elbow": 2.9569,"wrist": -1.4053,"roll": 0,"hand": 3.1415,"spd": 0,"acc": 30})
+        base.base_json_ctrl({"T":102,"base": 0,"shoulder": 0,"elbow": 2.618,"wrist": 0,"roll": 0,"hand": 3.1415,"spd": 0,"acc": 30})
     elif f['base_config']['module_type'] == 2:
         base.gimbal_ctrl(0, 0, 200, 10)
 
