@@ -18,6 +18,7 @@ import {
 } from './api.js';
 import config from './config.js';
 let roarm_type =null;
+let gripper_type =null;
 const view = document.getElementById("roarmView");
 //config
 function onConfigLoaded() {
@@ -27,7 +28,11 @@ function onConfigLoaded() {
   if (config.module_type !== undefined) {
     view.classList.remove("hidden");
     if (config.module_type===1){
-        roarm_type='roarm_m2'
+        if (config.gripper_type===0){
+            roarm_type='roarm_m2'
+        }else{
+            roarm_type='roarm_m2_ga'
+        }
     }else if (config.module_type===3){
         roarm_type='roarm_m3'
     }else if (config.module_type===0 || config.module_type===2){

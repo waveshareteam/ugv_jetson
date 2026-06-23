@@ -93,7 +93,7 @@ Restart=always
 RestartSec=5
 StartLimitBurst=5
 StartLimitIntervalSec=500
-KillMode=process
+# KillMode=process
 Environment=NODE_ENV=production
 Environment=PATH=/usr/bin:/bin:/usr/local/bin
 

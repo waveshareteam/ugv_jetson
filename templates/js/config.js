@@ -2,6 +2,7 @@
 const config = {
   robot_name: null,
   module_type: null,
+  gripper_type: null,
   cmd_ros_movition_ctrl: null,
   max_speed: null,
   max_turn_speed: null,
