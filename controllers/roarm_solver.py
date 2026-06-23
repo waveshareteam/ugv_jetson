@@ -47,27 +47,29 @@ class RoArmM2:
         return math.sqrt(x ** 2 + y ** 2), math.atan2(y, x)
 
     def simple_linkage_ik_rad(self, aIn, bIn):
+        def safe_acos(v):
+            return math.acos(max(-1.0, min(1.0, v)))
+
         LA = self.l2
         LB = self.l3
 
         if abs(bIn) < 1e-6:
-            psi = math.acos((LA ** 2 + aIn ** 2 - LB ** 2) / (2 * LA * aIn)) + self.t2rad
+            psi = safe_acos((LA ** 2 + aIn ** 2 - LB ** 2) / (2 * LA * aIn)) + self.t2rad
             alpha = math.pi / 2 - psi
-            omega = math.acos((aIn ** 2 + LB ** 2 - LA ** 2) / (2 * aIn * LB))
+            omega = safe_acos((aIn ** 2 + LB ** 2 - LA ** 2) / (2 * aIn * LB))
             beta = psi + omega - self.t3rad
         else:
             L2C = aIn ** 2 + bIn ** 2
             LC = math.sqrt(L2C)
             lambd = math.atan2(bIn, aIn)
-            psi = math.acos((LA ** 2 + L2C - LB ** 2) / (2 * LA * LC)) + self.t2rad
+            psi = safe_acos((LA ** 2 + L2C - LB ** 2) / (2 * LA * LC)) + self.t2rad
             alpha = math.pi / 2 - lambd - psi
-            omega = math.acos((LB ** 2 + L2C - LA ** 2) / (2 * LC * LB))
+            omega = safe_acos((LB ** 2 + L2C - LA ** 2) / (2 * LC * LB))
             beta = psi + omega - self.t3rad
 
         delta = math.pi / 2 - alpha - beta
         self.EOAT_point_RAD_BUFFER = delta
         self.nanIK = math.isnan(alpha) or math.isnan(beta) or math.isnan(delta)
-
         return alpha, beta
 
     def compute_pos_by_joint_rad(self, baseRad, shoulderRad, elbowRad, handRad):
@@ -151,32 +153,38 @@ class RoArmM3:
         self.lastValidResult = [0, 0, 0, 0, 0]
 
     def simple_linkage_ik_rad(self, aIn, bIn):
+        def safe_acos(v):
+            return math.acos(max(-1.0, min(1.0, v)))
+
         LA = self.l2
         LB = self.l3
 
         if abs(bIn) < 1e-6:
-            psi = math.acos((LA ** 2 + aIn ** 2 - LB ** 2) / (2 * LA * aIn)) + self.t2rad
+            psi = safe_acos((LA ** 2 + aIn ** 2 - LB ** 2) / (2 * LA * aIn)) + self.t2rad
             alpha = math.pi / 2 - psi
-            omega = math.acos((aIn ** 2 + LB ** 2 - LA ** 2) / (2 * aIn * LB))
+            omega = safe_acos((aIn ** 2 + LB ** 2 - LA ** 2) / (2 * aIn * LB))
             beta = psi + omega - self.t3rad
         else:
             L2C = aIn ** 2 + bIn ** 2
             LC = math.sqrt(L2C)
             lambd = math.atan2(bIn, aIn)
-            psi = math.acos((LA ** 2 + L2C - LB ** 2) / (2 * LA * LC)) + self.t2rad
+            psi = safe_acos((LA ** 2 + L2C - LB ** 2) / (2 * LA * LC)) + self.t2rad
             alpha = math.pi / 2 - lambd - psi
-            omega = math.acos((LB ** 2 + L2C - LA ** 2) / (2 * LC * LB))
+            omega = safe_acos((LB ** 2 + L2C - LA ** 2) / (2 * LC * LB))
             beta = psi + omega - self.t3rad
 
         delta = math.pi / 2 - alpha - beta
 
+        # 更新关节状态
         self.SHOULDER_JOINT_RAD = alpha
         self.ELBOW_JOINT_RAD = beta
         self.EOAT_JOINT_RAD_BUFFER = delta
 
+        # 检查是否有 NaN
         self.nanIK = math.isnan(alpha) or math.isnan(beta) or math.isnan(delta)
-        return self.SHOULDER_JOINT_RAD, self.ELBOW_JOINT_RAD, self.EOAT_JOINT_RAD_BUFFER
 
+        return self.SHOULDER_JOINT_RAD, self.ELBOW_JOINT_RAD, self.EOAT_JOINT_RAD_BUFFER
+        
     def rotate_point(self, theta):
         alpha = self.tErad + theta
         xB = -self.lE * math.cos(alpha)
