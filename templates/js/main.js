@@ -785,14 +785,26 @@ if (sendBtn && commandInput) {
 
 //jupyter
 const jupyterBtn = document.getElementById('open_jupyter');
-let link = null;
+let jupyter_link = null;
 if(jupyterBtn){
-    link = jupyterBtn.querySelector('a');
+    jupyter_link = jupyterBtn.querySelector('a');
 }
 
-if (link) {
+if (jupyter_link) {
   const { protocol, hostname } = window.location;
-  link.href = `${protocol}//${hostname}:8888`;
+  jupyter_link.href = `${protocol}//${hostname}:8888`;
+}
+
+//accesspopup
+const accesspopupBtn = document.getElementById('open_accesspopup');
+let accesspopup_link = null;
+if(accesspopupBtn){
+    accesspopup_link = accesspopupBtn.querySelector('a');
+}
+
+if (accesspopup_link) {
+  const { protocol, hostname } = window.location;
+  accesspopup_link.href = `${protocol}//${hostname}:8052`;
 }
 
 //remove buttons class

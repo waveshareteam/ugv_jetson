@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <!-- project CSS -->
+    <link href="{{ url_for('static',path='/css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+<div class="main">
+    <!--<div class="sidemenu">
+        {% include "component/menu.html" %}
+    </div>-->   
+    <div class="container">
+         <!-- HEADER -->
+        {% include "component/header.html" %}
+        <!-- BODY -->
+        {% block core_body%}
+        <h1>body</h1>
+        {% endblock core_body%}
+        <!-- FOOTER -->
+        {% include "component/footer.html" %}
+    </div>
+</div>
+</body>
+</html>

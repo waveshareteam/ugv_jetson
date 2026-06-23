@@ -1,0 +1,13 @@
+{% extends 'core.html' %}
+{% block core_body %}
+<div class="area">
+<h3>{{ t.delete_title }}</h3>
+<p>{{ t.delete_confirm | replace('{profile}', selected_prof) }}</p>
+
+<form method="post" action="/ap_delete">
+    <input type="hidden" name="profile" value="{{ selected_prof }}">
+    <button type="submit" name="confirm" value="yes" class="submit-btn red">{{ t.delete_yes }}</button>
+    <button type="submit" name="confirm" value="no" class="submit-btn grn">{{ t.delete_no }}</button>
+</form>
+</div>
+{% endblock core_body %}

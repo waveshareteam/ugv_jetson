@@ -1,0 +1,63 @@
+﻿{% extends 'core.html' %}
+{% block core_body%}
+
+<div class="area">
+<H2>{{ t.guide_title }}</H2>
+<p>{{ t.guide_intro1 | safe }}
+<br>{{ t.guide_intro2 }}<p>
+<p>{{ t.guide_intro3 }}</p>
+
+<p><b>{{ t.guide_unresponsive_title }}</b> {{ t.guide_unresponsive | safe }}</p>
+
+<H2>{{ t.guide_home_title }}</H2>
+<p>{{ t.guide_home_desc }}<p>
+{{ t.guide_home_switch | safe }}<br>
+<img src="{{ url_for('static', path='img/guide_home_img_buttons.png') }}" alt="{{ t.guide_home_img_alt }}" />
+<p>{{ t.guide_home_reconnect }} </p>
+<p>{{ t.guide_home_select }}</p>
+
+<H2>{{ t.guide_edit_title }}</H2>
+<p>{{ t.guide_edit_desc }}</p>
+<p>{{ t.guide_edit_password | safe }}</p>
+<p>{{ t.guide_edit_connect | safe }}</p>
+<p>{{ t.guide_edit_delete | safe }}</p>
+
+<h4>{{ t.guide_ap_title }}</h4>
+<img src="{{ url_for('static', path='img/change_accesspopup_details.png') }}" alt="{{ t.guide_ap_img_alt }}" />
+<p>{{ t.guide_ap_ssid }}</p>
+<p>{{ t.guide_ap_pwd }}</p>
+<P>{{ t.guide_ap_note | safe }}</P>
+
+<H2>{{ t.guide_add_title }}</H2>
+<p>{{ t.guide_add_scan | safe }}</p>
+<p>{{ t.guide_add_existing }}</p>
+<p>{{ t.guide_add_password | safe }}</p>
+<p>{{ t.guide_add_success }}</p>
+<p>{{ t.guide_add_fail }}</p>
+
+<p>{{ t.guide_add_manual | safe }}</p>
+
+<H2>{{ t.guide_no_internet_title }}</H2>
+<img src="{{ url_for('static', path='img/no_internet_warning.png') }}" alt="{{ t.guide_no_internet_img_alt }}" />
+<p>{{ t.guide_no_internet | safe }}</p>
+
+<H2>{{ t.guide_here_title }}</H2>
+<p>{{ t.guide_here }}</p>
+
+<H2>{{ t.guide_issues_title }}</H2>
+<p>{{ t.guide_issues_intro }}
+<ul>
+<li>{{ t.guide_issues_li1 }}</li>
+<li>{{ t.guide_issues_li2 }}</li>
+<li>{{ t.guide_issues_li3 }}</li>
+<li>{{ t.guide_issues_li4 }}</li>
+</ul>
+{{ t.guide_issues_nm | safe }}
+<p>{{ t.guide_issues_contact | safe }}</p>
+<p>{{ t.guide_issues_ap }}</p>
+<p>{{ t.guide_issues_restart }}</p>
+
+<H2>{{ t.guide_support_title }}</H2>
+<p>{{ t.guide_support }}</p>
+</div>    
+{% endblock core_body%}

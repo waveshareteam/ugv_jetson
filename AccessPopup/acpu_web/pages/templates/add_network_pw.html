@@ -1,0 +1,22 @@
+{% extends 'core.html' %}
+{% block core_body%}
+<div class="area">
+<H3>{{ t.add_network_pw_title }}</H3>
+<p>{{ t.add_network_pw_selected }} <b>{{new_nw}}</b> </p>
+
+<p>{{ t.add_network_pw_enter }} {{new_nw}}</p>
+
+<form method="post" action="/add_network_pw">
+    <input type="text" name="new_nw_pass" value="">
+    <input type="hidden" name="profile" value="{{ new_nw }}"><br><br>
+     <button type="submit" class="submit-btn grn">{{ t.add_network_pw_connect }}</button>
+</form>
+<p><b>{{ t.add_network_pw_note }}</b> {{ t.add_network_pw_note2 }}</p>
+<p>{{ t.add_network_pw_fail1 }}</p>
+<p>{{ t.add_network_pw_fail2 }}</p>
+{% if message %}
+  <p style="color: red;">{{ message }}</p>
+{% endif %}
+</div>
+
+{% endblock core_body%}

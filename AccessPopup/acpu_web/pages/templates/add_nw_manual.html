@@ -1,0 +1,29 @@
+{% extends 'core.html' %}
+{% block core_body%}
+
+<div class="area">
+<H2>{{ t.manual_title }}</H2>
+<p>{{ t.manual_no_scan }}</p>
+<p>{{ t.manual_enter }}</p>
+<p>{{ t.manual_remote }}
+<br>{{ t.manual_remote2 }}</p>
+<p>{{ t.manual_fail }}</p>
+
+<H3>{{ t.manual_form_title }}</H3>
+{% if message %}
+  <p style="color: red;">{{ message }}</p>
+{% endif %}
+<form method="post" action="/add_network_manual">
+	<p>{{ t.manual_ssid }}<br>
+	<input type="text" name="new_nw_ssid" value=""></p>
+	<p>{{ t.manual_password }}<br>
+    <input type="text" name="new_nw_pass" value=""></p>
+     <button type="submit" class="submit-btn grn">{{ t.manual_create }}</button>
+</form>
+<p><b>{{ t.manual_note }}</b> {{ t.manual_note2 }}</p>
+<p>{{ t.manual_fail1 }}</p>
+<p>{{ t.manual_fail2 }}</p>
+
+
+</div>    
+{% endblock core_body%}

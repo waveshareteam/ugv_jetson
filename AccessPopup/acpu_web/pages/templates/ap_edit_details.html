@@ -1,0 +1,20 @@
+{% extends 'core.html' %}
+{% block core_body%}
+<div class="area">
+<H3>{{ t.edit_pw_title }}</H3>
+<p>{{ t.edit_pw_selected }} <b>{{selected_prof}}</b> </p>
+
+<p>{{ t.edit_pw_enter }} {{selected_prof}}</p>
+
+<form method="post" action="/ap_edit_pw">
+    <input type="text" name="newpass" value="">
+    <input type="hidden" name="profile" value="{{ selected_prof }}"><br>
+     <button type="submit" class="submit-btn grn">{{ t.add_network_pw_connect }}</button>
+</form>
+<p></p>
+{% if message %}
+  <p style="color: red;">{{ message }}</p>
+{% endif %}
+</div>
+
+{% endblock core_body%}

@@ -1,0 +1,14 @@
+{% extends 'core.html' %}
+{% block core_body%}
+<H3>Change the Password for an existing profile</H3>
+<p>Profile Selected: <b>{{result}}</b> </p>
+
+<p>Enter new password for {{result}}</p>
+
+<form method="post">
+    <input type="text" name="newpass" value=""/>
+    <input type="hidden" name="profile" value={{result}}/><br>
+    <input type="submit">
+</form>
+
+{% endblock core_body%}

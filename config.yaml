@@ -1,91 +1,23 @@
 args_config:
+  max_rate: 1.0
   max_speed: 1.3
   max_turn_speed: 3.1416
-  slow_speed: 0.2
-  max_rate: 1.0
   mid_rate: 0.66
   min_rate: 0.3
+  slow_speed: 0.2
 audio_config:
   audio_output: true
   default_volume: 1.0
   min_time_bewteen_play: 1
   speed_rate: 180
 base_config:
-  robot_name: RaspRover
-  main_type: 1
-  module_type: 0
-  sbc_version: 0.93
-  use_lidar: false
   add_osd: false
   extra_sensor: false
-cv:
-  color_list:
-    blue:
-      lower:
-      - 0
-      - 0
-      - 0
-      upper:
-      - 255
-      - 255
-      - 100
-    green:
-      lower:
-      - 0
-      - 0
-      - 0
-      upper:
-      - 255
-      - 110
-      - 195
-    red:
-      lower:
-      - 0
-      - 160
-      - 0
-      upper:
-      - 255
-      - 255
-      - 255
-  default_color: green
-  track_base: ugv
-  line_lower:
-  - 0
-  - 100
-  - 187
-  line_upper:
-  - 255
-  - 255
-  - 255
-sbc_config:
-  disabled_http_log: true
-  feedback_interval: 0.001
-video:
-  # IMX335 5MP USB Camera (B)
-  # [0]: 'MJPG' (Motion-JPEG, compressed)
-  #       Size: Discrete 160x120
-  #               Interval: Discrete 0.033s (30.000 fps)
-  #       Size: Discrete 320x240
-  #               Interval: Discrete 0.033s (30.000 fps)
-  #       Size: Discrete 352x288
-  #               Interval: Discrete 0.033s (30.000 fps)
-  #       Size: Discrete 640x480
-  #               Interval: Discrete 0.033s (30.000 fps)
-  #       Size: Discrete 800x600
-  #               Interval: Discrete 0.033s (30.000 fps)
-  #       Size: Discrete 1024x768
-  #               Interval: Discrete 0.033s (30.000 fps)
-  #       Size: Discrete 1280x720
-  #               Interval: Discrete 0.033s (30.000 fps)
-  #       Size: Discrete 1280x960
-  #               Interval: Discrete 0.033s (30.000 fps)
-  #       Size: Discrete 1920x1080
-  #               Interval: Discrete 0.033s (30.000 fps)
-  #       Size: Discrete 2048x1536
-  #               Interval: Discrete 0.033s (30.000 fps)
-  # Recommended resolution settings for color detect and line following: 640x480,1024x768,1280x960
-  default_res_h: 480
-  default_res_w: 640
+  main_type: 2
+  module_type: 1
+  robot_name: UGV Rover
+  sbc_version: 0.93
+  use_lidar: false
 cmd_config:
   cmd_arm_ctrl: 102
   cmd_gimbal_base_ctrl: 141
@@ -128,6 +60,45 @@ code:
   set_mid: 10903
   video: 10203
   zoom: 10104
+cv:
+  color_list:
+    blue:
+      lower:
+      - 0
+      - 0
+      - 0
+      upper:
+      - 255
+      - 255
+      - 100
+    green:
+      lower:
+      - 0
+      - 0
+      - 0
+      upper:
+      - 255
+      - 110
+      - 195
+    red:
+      lower:
+      - 0
+      - 160
+      - 0
+      upper:
+      - 255
+      - 255
+      - 255
+  default_color: green
+  line_lower:
+  - 0
+  - 100
+  - 187
+  line_upper:
+  - 255
+  - 255
+  - 255
+  track_base: ugv
 fb:
   base_light: 115
   base_voltage: 112
@@ -145,3 +116,9 @@ fb:
   video_fps: 113
   video_size: 105
   wifi_rssi: 111
+sbc_config:
+  disabled_http_log: true
+  feedback_interval: 0.001
+video:
+  default_res_h: 480
+  default_res_w: 640

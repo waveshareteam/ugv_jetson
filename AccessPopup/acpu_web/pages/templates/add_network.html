@@ -1,0 +1,92 @@
+{% extends 'core.html' %}
+{% block core_body %}
+<div class="area">
+<h3>{{ t.add_network_title }}</h3>
+<p>{{ t.add_network_desc }}
+<br>{{ t.add_network_existing }}</p>
+
+<div>
+    <form method="post" action="/refresh_list" id="scan-form">
+        <input type="hidden" name="refresh_list" value="1">
+        <button type="submit" id="refresh-btn" class="submit-btn grn">{{ t.add_network_refresh }}</button>
+    </form>
+    <p>{{ t.add_network_wait }}</p>
+</div>
+
+<div id="wifi-results">
+{% if message %}
+  <p>{{ message }}</p>
+{% endif %}
+</div>
+
+<script>
+const i18n = {
+    scanning: {{ t.add_network_scanning | tojson }},
+    timeout: {{ t.add_network_timeout | tojson }},
+    nearby: {{ t.add_network_nearby | tojson }},
+    addSelected: {{ t.add_network_add_selected | tojson }},
+    saved: {{ t.add_network_saved | tojson }},
+};
+
+const resultsDiv = document.getElementById("wifi-results");
+const refreshBtn = document.getElementById("refresh-btn");
+const form = document.getElementById("scan-form");
+
+let pollCount = 0;
+const maxPolls = 12;
+
+async function checkScanStatus() {
+    const resp = await fetch("/scan_status");
+    const data = await resp.json();
+
+    if (data.redirect) {
+        window.location.href = data.redirect;
+        return;
+    }
+
+    if (data.status === "running") {
+        resultsDiv.innerHTML = "<p>" + (data.scanning_text || i18n.scanning) + "</p>";
+        pollCount++;
+        if (pollCount < maxPolls) {
+            setTimeout(checkScanStatus, 5000);
+        } else {
+            resultsDiv.innerHTML = "<p style='color:red;'>" + i18n.timeout + "</p>";
+            refreshBtn.disabled = false;
+        }
+    } else if (data.status === "done") {
+        let html = "<form method='post' action='/new_nw'>";
+        html += "<p><b>" + (data.nearby_title || i18n.nearby) + "</b></p>";
+        data.results.forEach(prof => {
+            if (prof && prof.trim() !== "") {
+                html += `<input type="radio" id="${prof}" name="new_nw" value="${prof}"> ${prof}<br>`;
+            }
+        });
+        html += "<br><button type='submit' class='submit-btn grn'>" + (data.add_selected || i18n.addSelected) + "</button></form>";
+        
+        html += "<p><b>" + (data.saved_title || i18n.saved) + ":</b><br>";
+        html += "<ul>";
+        data.mywifi.forEach(ssid => {
+            html += `<li>${ssid}</li>`;
+        });
+        html += "</ul></p>";
+        
+        resultsDiv.innerHTML = html;
+        refreshBtn.disabled = false;
+        pollCount = 0;
+    }
+}
+
+form.addEventListener("submit", async function(e) {
+    e.preventDefault();
+    refreshBtn.disabled = true;
+    resultsDiv.innerHTML = "<p>" + i18n.scanning + "</p>";
+
+    await fetch("/refresh_list", { method: "POST", body: new FormData(form) });
+
+    pollCount = 0;
+    checkScanStatus();
+});
+</script>
+
+</div>
+{% endblock core_body %}

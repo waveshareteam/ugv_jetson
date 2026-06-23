@@ -1,0 +1,16 @@
+<div class="header">
+<div class="area">
+<ul class="topmenu">
+  <li><a href="{{ url_for('index')}}">{{ t.nav_home }}</a></li>
+  <li><a href="/ap_edit">{{ t.nav_edit_wifi }}</a></li>
+  <li><a href="/add_network">{{ t.nav_add_wifi }}</a></li>
+  <li><a href="/guide">{{ t.nav_guide }}</a></li>
+</ul>
+<div class="lang-switch">
+  <a href="/set_lang/zh" class="{% if lang == 'zh' %}active{% endif %}">中文</a>
+  <span>|</span>
+  <a href="/set_lang/en" class="{% if lang == 'en' %}active{% endif %}">English</a>
+</div>
+<H4 class="center">{{ t.header_title }}</H4>
+</div>
+</div>

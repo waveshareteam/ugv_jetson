@@ -1,0 +1,251 @@
+
+body{
+    background-color: rgb(225,225,225);
+    color: rgb(64,64,96);
+}
+h1 h2 h3{
+    text-align: center;
+}
+
+.container{
+    width: 100%;
+    float: left;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: rgb(128,128,164);
+    color: rgb(64,64,96);
+    border-radius: 25px;
+}
+.index{
+    min-height: 400px;
+    margin-left: 5px;
+    margin-right: 5px;
+    padding: 3px;
+}
+.card{
+    display: block;
+    background-color: white ;
+    box-shadow: 5px 5px 5px #ccc;
+    max-width: 18rem;
+    max-height: 18rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 3px;
+    margin-bottom: 5px;
+}
+.card a{
+    text-decoration: none;
+    padding: 2px;
+    background-color: rgb(10,12,150);
+    color: white;
+    font-size: 36px;
+}
+.card small{
+    margin-top: auto;
+}
+.header{
+    display: block;
+}
+
+.center{
+    text-align:center;
+    }
+
+.lang-switch {
+    text-align: right;
+    padding: 6px 12px 0;
+    font-size: 11pt;
+}
+
+.lang-switch a {
+    color: rgb(32, 32, 96);
+    text-decoration: none;
+    padding: 2px 6px;
+}
+
+.lang-switch a:hover,
+.lang-switch a.active {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.lang-switch span {
+    color: rgb(96, 96, 128);
+    margin: 0 4px;
+}
+
+.area {
+  border-radius: 25px;
+  border: 2px solid #000;
+  padding: 20px 10px 5px 20px;
+  margin: 10px auto;
+  max-width: 900px;
+  width: 95%;
+  background-color: rgb(220,220,240);
+  box-sizing: border-box;
+}
+
+.main{
+    min-width: 100%;
+    background-color: rgb(255,255,255);
+}
+     
+.sidemenu{
+    float:left;
+    
+    border-radius: 25px;
+    border: 2px solid #000;
+    font-size: 10pt;
+  
+    width:150px;
+    min-height: 200px;
+    margin-left: 2px;
+    margin-right: 4px;
+    padding:3px;
+    background-color: rgb(220,220,240);
+    color: rgb(64,64,96);
+}
+     
+/* Container for the navigation menu */
+.navmenu {
+  width: 150px;
+  margin: 0;
+  padding: 0;
+  background-color: rgb(200,200,225);  /* Dark grey background */
+}
+
+/* List items with left aligned text */
+.navmenu li {
+  list-style: none;
+  text-align: left;
+}
+
+/* Anchor elements styled to cover the entire width of the menu item */
+.navmenu li a {
+  display: block;
+  padding: 4px 4px;
+  color:  rgb(64,64,200);             /* Text color */
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* Hover state: Change background to dark blue across the full width */
+.navmenu li a:hover {
+  background-color: rgb(64,54,64); /* Dark blue */
+  color: rgb(255,255,255);
+}
+
+/* Active state for menu items: Medium grey background */
+.navmenu li.active a {
+  background-color: rgb(128,128,128);  /* Medium grey */
+}
+
+
+button.submit-btn {
+  background-color: green;
+  color: white;
+  border: 2px solid white;
+  border-radius: 10px;
+  padding: 10px 20px;
+  margin: 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+button.submit-btn.grn:hover {
+  background-color: darkgreen;
+  transform: scale(1.05);
+}
+
+button.submit-btn.red:hover {
+  background-color: darkred;
+  transform: scale(1.05);
+}
+
+button.submit-btn.blu:hover {
+  background-color: darkblue;
+  transform: scale(1.05);
+}
+
+button.grn {
+    background-color: green;
+}
+
+button.red {
+    background-color: darkred;
+}
+
+button.blu {
+    background-color: blue;
+}
+
+input[type=text] {
+  padding: 12px 20px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: 2px solid darkgreen;
+  border-radius: 4px;
+}
+
+input[type=radio] {
+  padding: 12px 20px;
+  margin: 8px 0;
+  border: 2px solid darkgreen;
+  border-radius: 4px;
+}
+
+ul.topmenu {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  font-size: 12pt;
+  background-color: rgb(128,128,164);
+  border: 1px solid black;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  overflow: hidden;           /* ⬅️ Clips hover backgrounds to rounded border */
+}
+
+ul.topmenu li {
+  flex: 1 1 auto;
+  text-align: center;
+}
+
+ul.topmenu li a {
+  display: block;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  background-color: rgb(128,128,164);
+  background-clip: padding-box; /* ⬅️ Ensures hover bg doesn’t go under border */
+}
+
+ul.topmenu li a:hover {
+  background-color: rgb(32,32,64);
+}
+
+
+}
+
+@media (max-width: 600px) {
+  ul.topmenu {
+    flex-direction: column;   /* stack items vertically */
+    align-items: stretch;     /* make them full width */
+  }
+
+  ul.topmenu li a {
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.3); /* subtle dividers */
+  }
+
+  ul.topmenu li:last-child a {
+    border-bottom: none;
+  }
+}
+
+.smltxt {
+	font-size: 10pt;
+}

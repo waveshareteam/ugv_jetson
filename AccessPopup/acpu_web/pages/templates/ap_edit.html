@@ -1,0 +1,48 @@
+{% extends 'core.html' %}
+{% block core_body%}
+<div class="area">
+<H3>{{ t.ap_edit_profiles_title }}</H3>
+<p>{{ t.ap_edit_current }} <b>{{context.wifi.Connection}}</b> {{ t.index_on_device }} <b>{{context.wifi.Device}}</b> </p>
+
+<form method="post" action="/ap_edit_details">   
+<p><b>{{ t.ap_edit_networks }}</b></p>
+<p>{{ t.ap_edit_select }}</p>
+    {% if context.profiles %}
+        {% for prof in context.profiles %}
+            <input type="radio" id="{{ prof }}" name="edit_nw" value="{{ prof }}">
+            {{ prof }}<br>
+        {% endfor %}
+    {% else %}
+        <p>{{ t.ap_edit_no_profiles }} <br>{{ t.ap_edit_no_profiles_hint }}</p>
+    {% endif %}
+  
+<p><br>{{ t.ap_edit_disconnect_note }}</p>
+
+ <button type="submit" name="submit" class="submit-btn grn" value="edit">{{ t.ap_edit_btn_edit }}</button>
+ <button type="submit" name="submit" class="submit-btn blu" value="connect">{{ t.ap_edit_btn_connect }}</button>
+ <button type="submit" name="submit" class="submit-btn red" value="delete">{{ t.ap_edit_btn_delete }}</button>
+ </form>
+ {% if messagen %}
+  <p style="color: red;">{{ messagen }}</p>
+{% endif %}
+</div>
+<div class="area">
+<h3>{{ t.ap_edit_ap_title }}</h3>
+<p>{{ t.ap_edit_ap_desc }}</p>
+
+<form method="post" action="/ap_edit">
+<p><b>{{ t.ap_edit_ap_warning }}</b></p>
+<p>{{ t.ap_edit_ap_ssid_hint }}
+<br><input type="text" name="ap_ssid" placeholder="{{ apssid }}"><br>
+{{ t.ap_edit_ap_pwd_hint }}<br>
+{{ t.ap_edit_ap_pwd_desc }} 
+<br><input type="text" name="ap_pwd" placeholder="{{ appwd }}">
+<br>
+<button type="submit" class="submit-btn grn">{{ t.ap_edit_ap_update }}</button>
+</form></p>
+{% if message %}
+  <p style="color: red;">{{ message }}</p>
+{% endif %}
+
+</div>
+{% endblock core_body%}

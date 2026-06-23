@@ -1,0 +1,36 @@
+{% extends 'core.html' %}
+{% block core_body%}
+<div class="index">
+    
+<div class="area">
+<H2>{{ t.index_title }}</H2>
+<p>{{ t.index_connected }} <b>{{context.wifi.Connection}}</b> {{ t.index_on_device }} <b>{{context.wifi.Device}} {{context.wifi.wifiip}}</b> </p>
+<p>{{ t.index_hostname }} <b>{{context.hostname}}</b></p>
+<p>{{ t.index_eth1 }} <b>{{context.lan1.lan_device}}</b> {{ t.index_is_active }} <b>{{context.lan1.lan_active}} {{context.lan1.lan_ip}} </b><br>
+{{ t.index_eth2 }} <b>{{context.lan2.lan_device}}</b> {{ t.index_is_active }} <b>{{context.lan2.lan_active}} {{context.lan2.lan_ip}}</b></p>
+<p>{{ t.index_refresh_hint }}</p>
+</div>
+
+<div>
+<div class="area">
+<h3>{{ t.index_wifi_switching }}</h3>
+<p>{{ t.index_switch_desc }}<br><br>
+<b>{{ t.index_switch_note }}</b><br>
+{{ t.index_switch_reconnect }}</p>
+<p>{{ t.index_switch_lan }} </p>
+<p>
+<form method="post">
+<button type="submit" name="switch" class="submit-btn grn" value="to_ap">{{ t.index_btn_ap }}</button>
+<button type="submit" name="switch" class="submit-btn grn" value="to_nw">{{ t.index_btn_nw }}</button>
+</form>
+<p>{{ t.index_ap_note }}<br>
+{{ t.index_ap_note2 }} </p>
+</p>
+
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+{{result}}
+</div>
+</div>    
+{% endblock core_body%}
