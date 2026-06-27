@@ -22,6 +22,23 @@ clients = {}  # addr -> conn
 server_socket = None
 running = True
 
+def device_live_ip(device):
+	"""Current IPv4 on the wifi device (reliable for AP mode on Jetson)."""
+	try:
+		out = subprocess.run(
+			['sudo', 'nmcli', '-t', '-f', 'IP4.ADDRESS', 'device', 'show', device],
+			capture_output=True, text=True, timeout=10
+		)
+		if out.returncode == 0:
+			for line in out.stdout.splitlines():
+				if line.startswith('IP4.ADDRESS'):
+					addr = line.split(':', 1)[1].strip()
+					if addr:
+						return addr.split('/')[0]
+	except (subprocess.SubprocessError, OSError):
+		pass
+	return ""
+
 class NMprofiles:
 	"""Gets Network Manager Profile details for Wifi and Eth"""
 	def __init__(self):
@@ -129,9 +146,13 @@ class NMprofiles:
 	def wifi_active(self,device):
 		"""Get the active Wifi Profiles for a given wifi device"""
 		active_list=[]
+		live_ip = device_live_ip(device)
 		for i in self.wifi_profiles:
 			if i["active"] == "yes" and device == i["device"]:
-				active_list.append([i["name"],i["device"],i["ssid"],i["bssid"],i["mode"],i["conip"]])
+				conip = i.get("conip") or i.get("profip") or live_ip
+				if not conip:
+					conip = live_ip
+				active_list.append([i["name"],i["device"],i["ssid"],i["bssid"],i["mode"],conip])
 		return active_list
 
 	def wifi_prof_list(self):
@@ -166,23 +187,69 @@ class NMprofiles:
 				l.append(self.wifi_profiles[i]["ssid"])
 		return l
 
+def _prepare_wifi_scan(def_wifi):
+	"""Stop AP mode when active so single-radio devices can scan (Jetson/Realtek)."""
+	state = subprocess.run(
+		['sudo', 'nmcli', '-t', '-g', 'GENERAL.STATE', 'connection', 'show', 'AccessPopup'],
+		capture_output=True, text=True, timeout=10
+	)
+	if state.returncode == 0 and 'activated' in state.stdout.lower():
+		subprocess.run(
+			['sudo', 'nmcli', 'connection', 'down', 'AccessPopup'],
+			capture_output=True, text=True, timeout=15
+		)
+		time.sleep(3)
+
+
+def _scanwifi_nmcli(def_wifi):
+	subprocess.run(
+		['sudo', 'nmcli', 'device', 'wifi', 'rescan', 'ifname', def_wifi],
+		capture_output=True, text=True, timeout=30
+	)
+	time.sleep(2)
+	listdata = subprocess.run(
+		['sudo', 'nmcli', '-t', '-f', 'SSID', 'device', 'wifi', 'list', 'ifname', def_wifi],
+		capture_output=True, text=True, timeout=15
+	)
+	if listdata.returncode != 0:
+		return []
+	return [s for s in listdata.stdout.splitlines() if s and 'x00' not in s]
+
+
 def scanwifi(def_wifi):
 	"""get ssid's in range"""
-	bss = []
-	for w in range(3):
-			#scans mutiple times as local SSIDs don't all appears on first scans. Mutiple scans capture additional networks. 
-			iwdata = subprocess.run(['sudo','iw','dev',def_wifi,'scan', 'ap-force'], capture_output=True, text=True)
-			found_ssid = [line.removeprefix('\tSSID: ') for line in iwdata.stdout.splitlines() if 'SSID:' in line and 'x00' not in line]
-			found = [*found_ssid]
-			time.sleep(2)
+	_prepare_wifi_scan(def_wifi)
+
+	found = _scanwifi_nmcli(def_wifi)
 	if found:
 		return undup_list(found)
-	else:
-		return ["iwerror " + iwdata.stderr]
-		
-def undup_list(self):
+
+	try:
+		iwdata = subprocess.run(
+			['sudo', 'iw', 'dev', def_wifi, 'scan', 'ap-force'],
+			capture_output=True, text=True, timeout=20
+		)
+	except subprocess.TimeoutExpired:
+		return ["iwerror scan timeout"]
+
+	if iwdata.returncode == 0:
+		found_ssid = [
+			line.removeprefix('\tSSID: ')
+			for line in iwdata.stdout.splitlines()
+			if 'SSID:' in line and 'x00' not in line
+		]
+		if found_ssid:
+			return undup_list(found_ssid)
+
+	err = (iwdata.stderr or iwdata.stdout or "scan failed").strip()
+	if '-95' in err or 'not supported' in err:
+		return ["iwerror " + err]
+	return ["iwerror " + err]
+
+
+def undup_list(items):
 	"""Remove Duplicates from List"""
-	return list(dict.fromkeys(self))
+	return list(dict.fromkeys(items))
 	
 def get_hostname():
 	hst = subprocess.run(['sudo','nmcli','general','hostname'],capture_output=True, text=True, timeout=10)

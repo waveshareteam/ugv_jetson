@@ -104,6 +104,95 @@ if [ -n "$active" ] ; then
 fi
 }
 
+ap_client_count()
+{
+	iw "$wdev0" station dump 2>/dev/null | grep -c Station
+}
+
+# Match saved infrastructure profiles against visible SSID names.
+match_profiles_to_ssids()
+{
+	local -n visible_ssids=$1
+	ssidChk=()
+	for (( c=0; c<=${#profiles[@]}; c+=3 ))
+	do
+		if [ -n "${profiles[$c+1]}" ] ;then
+			if  [ ! "${profiles[$c+1]}" = "lo" ] && [ ! "${profiles[$c+1]:0:7}" = "Wired c" ] ;then
+				idssid="$(nmcli -t connection show "${profiles[$c+1]}" | grep "wireless.ssid")"
+				mode="$(nmcli -t connection show "${profiles[$c+1]}" | grep "802-11-wireless.mode:")"
+				if [[ "$mode" != *"infrastructure"* ]]; then
+					continue
+				fi
+				for vis in "${visible_ssids[@]}"; do
+					if [[ "$vis" == "${idssid:21}" ]] && [[ -n $idssid ]]; then
+						ssidChk+=("${profiles[$c+1]}")
+						break
+					fi
+				done
+			fi
+		fi
+	done
+	if [ "${#ssidChk[@]}" -eq 0 ]; then
+		ssidChk+=('NoSSid')
+	fi
+}
+
+# Bring down AP when no clients are connected so the radio can scan (Jetson/Realtek).
+# Returns 0 if scan may proceed, 1 if clients are connected.
+prepare_radio_for_scan()
+{
+	is_active_ap
+	if [ "$active_ap" != "y" ]; then
+		return 0
+	fi
+	local clients
+	clients="$(ap_client_count)"
+	if [ "$clients" -gt 0 ]; then
+		echo "Access Point has $clients client(s) connected - deferring WiFi switch"
+		ssidChk=('NoSSid')
+		return 1
+	fi
+	echo "No AP clients - bringing down Access Point to scan for WiFi"
+	nmcli connection down "$ap_profile_name" >/dev/null 2>&1
+	sleep 3
+	active=""
+	active_ap="n"
+	return 0
+}
+
+nearby_ssids_nmcli()
+{
+	local scanlines=()
+	ssidChk=()
+	nmcli device wifi rescan ifname "$wdev0" >/dev/null 2>&1
+	sleep 2
+	while IFS= read -r line; do
+		[ -n "$line" ] && scanlines+=("$line")
+	done < <(nmcli -t -f SSID device wifi list ifname "$wdev0" 2>/dev/null)
+	if [ "${#scanlines[@]}" -eq 0 ]; then
+		ssidChk+=('NoSSid')
+		return
+	fi
+	echo "Nearby SSIDs (nmcli):"
+	printf '%s\n' "${scanlines[@]}"
+	match_profiles_to_ssids scanlines
+}
+
+scan_for_known_wifi()
+{
+	if [ ${#nw_profile[@]} -eq 0 ]; then
+		ssidChk=('NoSSid')
+		return
+	fi
+	if ! prepare_radio_for_scan; then
+		return
+	fi
+	nearby_ssids_nmcli
+	if [ "${ssidChk[0]}" = 'NoSSid' ]; then
+		nearby_ssids_iw
+	fi
+}
+
 #Function IW SSID scan
 nearby_ssids_iw()
 {
@@ -161,23 +250,11 @@ echo "$ssidreply" | grep "SSID:"
 echo "SSID's in the local Area"
 echo "Duplicates are for each Antenna. Usually 2.4ghz and 5ghz. Blanks or \x00 are hidden"
 echo ""
-for (( c=0; c<=${#profiles[@]}; c+=3 ))
-do
-	if [ -n "${profiles[$c+1]}" ] ;then #profile is not empty
-		if  [ ! "${profiles[$c+1]}" = "lo" ] && [ ! "${profiles[$c+1]:0:7}" = "Wired c" ] ;then
-			idssid="$(nmcli -t connection show "${profiles[$c+1]}" | grep "wireless.ssid")"
-			for i in "${ssidlst[@]}"; do
-				if [[ "${i:7}" == "${idssid:21}" ]] && [[ -n $idssid ]]; then
-					ssidChk+=("${profiles[$c+1]}")
-					break
-				fi
-			done
-		fi
-	fi
+visible_ssids=()
+for i in "${ssidlst[@]}"; do
+	visible_ssids+=("${i:7}")
 done
-if [ "${#ssidChk[@]}" -eq 0 ]; then
-	ssidChk+='NoSSid'
-fi
+match_profiles_to_ssids visible_ssids
 if [ "${ssidChk[0]}" = 'NoSSid' ] && [ $iwer -ne 0 ] ; then
 	echo -e "\nNETWORK ISSUE:"
 	echo "Unable to scan for local wifi networks because"
@@ -222,11 +299,17 @@ wifi_is_off()
 
 check_ap_clients()
 {
-	c="$(iw $wdev0 station dump | grep Station | wc -l)" >/dev/null 2>&1
-	if [ $c -eq 0 ]; then
-		apup="$(nmcli connection down "$ap_profile_name")" >/dev/null 2>&1
-		nearby_ssids_iw
-    fi
+	c="$(ap_client_count)"
+	if [ "$c" -eq 0 ]; then
+		nmcli connection down "$ap_profile_name" >/dev/null 2>&1
+		sleep 3
+		active=""
+		active_ap="n"
+		nearby_ssids_nmcli
+		if [ "${ssidChk[0]}" = 'NoSSid' ]; then
+			nearby_ssids_iw
+		fi
+	fi
 }
 
 #Activate AP profile
@@ -261,9 +344,9 @@ start_ap()
 	is_active_ap
 	if [ "$active_ap" == 'y' ]; then
 		echo "The Access Point SSID: $ap_profile_name has been activated"
-		showip="$(nmcli -t connection show $active | grep IP4.ADDRESS | cut -f2 -d:)"
-		if [ -n $showip ]; then
-			echo "AP on IP Address ${showip::-3}"
+		showip="$(nmcli -t -f IP4.ADDRESS device show "$wdev0" 2>/dev/null | head -1 | cut -d: -f2-)"
+		if [ -n "$showip" ]; then
+			echo "AP on IP Address ${showip%%/*}"
 		fi
 	elif [ "$active_ap" == 'n' ]; then
 		echo "The Access Point failed to be activated."
@@ -278,11 +361,18 @@ start_nw()
 		echo "The active profile $active is being disconnected"
 		nmcli connection down "$active" >/dev/null 2>&1
 	fi
-	f=0
+	if nmcli connection show "$ap_profile_name" >/dev/null 2>&1; then
+		nmcli connection modify "$ap_profile_name" connection.autoconnect no >/dev/null 2>&1
+		nmcli connection modify "$ap_profile_name" connection.autoconnect-priority -999 >/dev/null 2>&1
+	fi
+	sleep 3
 	for i in "${ssidChk[@]}"
 	do
+		if [ "$i" = 'NoSSid' ]; then
+			continue
+		fi
 		echo "Checking the Connection for: $i"
-		con="$(nmcli connection up "$i")" 
+		con="$(nmcli connection up "$i")"
 		stat=$?
 		if [ $stat -eq 0 ] ; then
 			echo "The connection is good :)"
@@ -322,9 +412,35 @@ ap_new_profile()
 nmcli device wifi hotspot ifname $wdev0 con-name "$ap_profile_name" ssid "$ap_ssid" band bg channel 6 password "$ap_pw" >/dev/null 2>&1
 nmcli connection modify "$ap_profile_name" ipv4.method shared ipv4.addr "$ap_ip" ipv4.gateway "$ap_gate" 802-11-wireless-security.group "ccmp" 802-11-wireless-security.pairwise "ccmp" 802-11-wireless-security.proto "rsn" >/dev/null 2>&1
 nmcli connection modify "$ap_profile_name" wifi.powersave disable
+nmcli connection modify "$ap_profile_name" connection.autoconnect-priority -999 >/dev/null 2>&1
 ap_profile+="$ap_profile_name"
 nmcli connection reload
-check_pizerow
+	check_pizerow
+}
+
+# Write live network state for other apps (e.g. robot OLED via ugv os_info).
+write_network_status()
+{
+	active_wifi
+	is_active_ap
+	local ip mode
+	ip="$(nmcli -t -f IP4.ADDRESS device show "$wdev0" 2>/dev/null | head -1 | cut -d: -f2-)"
+	ip="${ip%%/*}"
+	if [ -z "$ip" ] && [ "$active_ap" = "y" ]; then
+		ip="${ap_ip%%/*}"
+	fi
+	if [ "$active_ap" = "y" ]; then
+		mode="AP"
+	else
+		mode="STA"
+	fi
+	cat > /run/accesspopup-status <<EOF
+wdev0=$wdev0
+wifi_mode=$mode
+wifi_ip=$ip
+active_profile=$active
+EOF
+	chmod 644 /run/accesspopup-status 2>/dev/null
 }
 
 #Main
@@ -349,12 +465,14 @@ while getopts "ah" opt; do
 			if [ "$active_ap" = "n" ]; then
 				systemctl stop AccessPopup.timer
 				start_ap
+				write_network_status
 				exit
 			else
 				echo "Access Point $active is already active"
 				if systemctl is-active --quiet AccessPopup.timer; then
 					systemctl stop AccessPopup.timer
 				fi
+				write_network_status
 				exit
 			fi
 			;;
@@ -377,22 +495,20 @@ while getopts "ah" opt; do
 done
 
 if [ -n "$active" ]; then #Active Profile Yes
-	# "Is the current connection an AP"
 	is_active_ap
 	if [ "$active_ap" = "y" ]; then #Yes it's an AP profile
-		if [ ${#nw_profile[@]} -gt 0 ]; then #only scan if NW profiles exists#
-			nearby_ssids_iw #scan for nearby SSID's
-		fi
-		if [ ! "${ssidChk[0]}" = 'NoSSid' ]; then #know ssid in range 
+		scan_for_known_wifi
+		if [ ! "${ssidChk[0]}" = 'NoSSid' ]; then #know ssid in range
 			start_nw
 		fi
 	fi
 else #no active profile
-		if [ "${ssidChk[0]}" != 'NoSSid' ]; then #know ssid in range 
-			start_nw
-		elif [ "${ssidChk[0]}" = 'NoSSid' ]; then
-			start_ap
-		fi
+	scan_for_known_wifi
+	if [ "${ssidChk[0]}" != 'NoSSid' ]; then #know ssid in range
+		start_nw
+	else
+		start_ap
+	fi
 fi
 is_active_ap
 #Other AP is running, swap to this one
@@ -406,6 +522,8 @@ tup="$(systemctl list-timers AccessPopup.timer | grep 'AccessPopup.timer')"
 if [ -z "$tup" ];then
 	systemctl start AccessPopup.timer
 fi
+
+write_network_status
 
 echo "The Wifi profile in use is: $active"
 echo -e "Is this a local access point? $active_ap\n"

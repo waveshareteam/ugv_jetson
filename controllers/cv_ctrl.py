@@ -509,7 +509,7 @@ class OpencvFuncs():
             except:
                 pass
 
-            # time.sleep(1/30)
+            time.sleep(1/30)
             # get fps
             self.fps_count += 1
             if time.time() - self.fps_start_time >= 2:

@@ -50,7 +50,7 @@ scriptname="accesspopup.conf"
 scan_result = None
 myssids_in_scan = None
 scan_running = False
-wifi_dev = 'wlan0'
+wifi_dev = 'wlP1p1s0'
 Comms = None
 
 BACKEND_ADDR = ("localhost", 65432)
@@ -83,9 +83,21 @@ def get_nm_update():
     if active_wifi:
         try:
             wiip = active_wifi[0][5]
-        except:
+        except (IndexError, TypeError):
             wiip = ""
-        wifi_act = [active_wifi[0][0],active_wifi[0][1],wiip]
+        if not wiip:
+            try:
+                out = subprocess.run(
+                    ['nmcli', '-t', '-f', 'IP4.ADDRESS', 'device', 'show', wifi_dev],
+                    capture_output=True, text=True, timeout=5
+                )
+                for line in out.stdout.splitlines():
+                    if line.startswith('IP4.ADDRESS'):
+                        wiip = line.split(':', 1)[1].strip()
+                        break
+            except (subprocess.SubprocessError, OSError):
+                wiip = ""
+        wifi_act = [active_wifi[0][0], active_wifi[0][1], wiip]
     else:
         wifi_act = ["Not Available","",""]
         
@@ -345,17 +357,25 @@ async def scan_status(request: Request):
         return JSONResponse({"status": "running", "scanning_text": t["add_network_scanning"]})
 
     if scan_result is not None:
-        if "-95" in scan_result[0]:
-            return JSONResponse({"status": "error", "redirect": "/manual_add"})
-        else:
+        if (
+            scan_result
+            and isinstance(scan_result[0], str)
+            and scan_result[0].startswith("iwerror")
+        ):
+            if "-95" in scan_result[0] or "not supported" in scan_result[0]:
+                return JSONResponse({"status": "error", "redirect": "/manual_add"})
             return JSONResponse({
-                "status": "done",
-                "results": scan_result,
-                "mywifi": myssids_in_scan,
-                "nearby_title": t["add_network_nearby"],
-                "add_selected": t["add_network_add_selected"],
-                "saved_title": t["add_network_saved"],
+                "status": "error",
+                "message": t["add_network_timeout"],
             })
+        return JSONResponse({
+            "status": "done",
+            "results": scan_result,
+            "mywifi": myssids_in_scan or [],
+            "nearby_title": t["add_network_nearby"],
+            "add_selected": t["add_network_add_selected"],
+            "saved_title": t["add_network_saved"],
+        })
 
     return JSONResponse({"status": "idle"})
 
@@ -435,22 +455,25 @@ def do_scan():
     scan_running = True
     try:
         Comms.send_out("SCAN", wifi_dev)
-        s = wait_for_msg() or []
-        Comms.send_out("WISS","none")
-        w = wait_for_msg() or []
-        scan_result = list(set(s) - set(w))
-        myssids_in_scan = list(set(s) & set(w))
+        s = wait_for_msg(timeout=90) or []
+        Comms.send_out("WISS", "none")
+        w = wait_for_msg(timeout=30) or []
+        if s and isinstance(s[0], str) and s[0].startswith("iwerror"):
+            scan_result = s
+            myssids_in_scan = []
+        else:
+            scan_result = list(set(s) - set(w))
+            myssids_in_scan = list(set(s) & set(w))
     finally:
         scan_running = False
-        #print("Do Scan:",scan_result)
 
-def wait_for_msg():
+def wait_for_msg(timeout=40):
     t = time.time()
-    while time.time() - t < 40: #check for messages up to 15 seconds
+    while time.time() - t < timeout:
         msg = Comms.check_msg_in()
         if msg != None:
-            #print("Msg Returned:",msg)
             return msg.get("args")
+        time.sleep(0.05)
     return None
         
 #Messaging

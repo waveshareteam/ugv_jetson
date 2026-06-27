@@ -529,6 +529,7 @@ if [ -f "./$scriptname" ]; then
 	add_timer_service
 	systemctl start $timer
 	"${script_path}${scriptname}"
+	nmcli connection modify "$ap_profile_name" connection.autoconnect-priority -999 >/dev/null 2>&1
 	chmod +x ./nw_setup_offline.sh
 	echo -e "\nAccessPopup has been installed"
 	read -p "Press any key to continue"

@@ -33,7 +33,7 @@ const refreshBtn = document.getElementById("refresh-btn");
 const form = document.getElementById("scan-form");
 
 let pollCount = 0;
-const maxPolls = 12;
+const maxPolls = 24;
 
 async function checkScanStatus() {
     const resp = await fetch("/scan_status");

@@ -21,9 +21,6 @@ import asyncio
 import time
 import logging
 
-# JETSON ORIN NANO
-#base = BaseController('/dev/ttyTHS0', 115200)
-# JETSON ORIN NX
 base = BaseController('/dev/ttyTHS1', 115200)
 
 threading.Thread(target=lambda: base.breath_light(15), daemon=True).start()
@@ -402,33 +399,50 @@ def update_data_loop():
     
     last_eth0 = None
     last_wlan = None
+    last_wifi_mode = None
+    last_eth0_push = 0
+    last_wlan_push = 0
     start_time = time.time()
 
     while True:
         update_data_websocket_single()
 
+        now = time.time()
+
+        if (now - last_eth0_push) >= 5 or (now - last_wlan_push) >= 5:
+            si.update_network_info()
+
         eth0 = si.eth0_ip
         wlan = si.wlan_ip
+        wifi_mode = si.wifi_mode
 
-        if eth0 != last_eth0:
+        if eth0 != last_eth0 or (now - last_eth0_push) >= 5:
             if eth0:
                 base.base_oled(0, f"E:{eth0}")
             else:
                 base.base_oled(0, "E: No Ethernet")
             last_eth0 = eth0
+            last_eth0_push = now
 
-        if wlan != last_wlan:
-            if wlan:
-                base.base_oled(1, f"W:{wlan}")
+        wlan_display = wlan or (si.ap_ip if wifi_mode == "AP" else None)
+        if wlan_display != last_wlan or wifi_mode != last_wifi_mode or (now - last_wlan_push) >= 5:
+            if not wlan_display:
+                si.update_network_info()
+                wlan = si.wlan_ip
+                wlan_display = wlan or (si.ap_ip if si.wifi_mode == "AP" else None)
+            if wlan_display:
+                base.base_oled(1, f"W:{wlan_display}")
             else:
-                base.base_oled(1, f"W: NO {si.wlan_interface}")
-            last_wlan = wlan
+                base.base_oled(1, "W: ---")
+            last_wlan = wlan_display
+            last_wifi_mode = wifi_mode
+            last_wlan_push = now
 
         elapsed_time = time.time() - start_time
         hours = int(elapsed_time // 3600)
         minutes = int((elapsed_time % 3600) // 60)
         seconds = int(elapsed_time % 60)
-        base.base_oled(3, f"{si.wifi_mode} {hours:02d}:{minutes:02d}:{seconds:02d} {si.wifi_rssi}dBm")
+        base.base_oled(3, f"{wifi_mode} {hours:02d}:{minutes:02d}:{seconds:02d} {si.wifi_rssi}dBm")
 
         time.sleep(1)  
 
